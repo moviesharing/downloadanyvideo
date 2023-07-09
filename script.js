@@ -1,23 +1,25 @@
-function downloadVideo() {
-  var videoUrl = document.getElementById('videoUrl').value;
-  
-  // Add video download links
-  var downloadLinks = document.getElementById('downloadLinks');
-  downloadLinks.innerHTML = '';
-  
-  var formats = [
-    { name: 'MP4 (720p)', url: videoUrl + '&format=mp4' },
-    { name: 'MP4 (360p)', url: videoUrl + '&format=mp4-low' },
-    { name: 'WebM (480p)', url: videoUrl + '&format=webm' }
-    // Add more formats if desired
-  ];
+const fileInput = document.querySelector("input"),
+downloadBtn = document.querySelector("button");
 
-  formats.forEach(function(format) {
-    var link = document.createElement('a');
-    link.setAttribute('href', format.url);
-    link.setAttribute('download', '');
-    link.className = 'download-link';
-    link.innerText = format.name;
-    downloadLinks.appendChild(link);
-  });
+downloadBtn.addEventListener("click", e => {
+    e.preventDefault();
+    downloadBtn.innerText = "Downloading file...";
+    fetchFile(fileInput.value);
+});
+
+function fetchFile(url) {
+    fetch(url).then(res => res.blob()).then(file => {
+        let tempUrl = URL.createObjectURL(file);
+        const aTag = document.createElement("a");
+        aTag.href = tempUrl;
+        aTag.download = url.replace(/^.*[\\\/]/, '');
+        document.body.appendChild(aTag);
+        aTag.click();
+        downloadBtn.innerText = "Download File";
+        URL.revokeObjectURL(tempUrl);
+        aTag.remove();
+    }).catch(() => {
+        alert("Failed to download file!");
+        downloadBtn.innerText = "Download File";
+    });
 }
